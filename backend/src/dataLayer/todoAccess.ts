@@ -66,6 +66,21 @@ export class TodoAccess {
         }).promise()
         return result.Items as TodoItem[]
     }
+    async updateUploadedAttachment(bucketName: string, todoId: string): Promise<void> {
+        const params = {
+            TableName: this.todoListTable,
+            Key: {
+                todoId,
+            },
+            UpdateExpression: "set attachmentUrl = :r",
+            ExpressionAttributeValues: {
+                ":r": `https://${bucketName}.s3.amazonaws.com/${todoId}`,
+            },
+            ReturnValues: "UPDATED_NEW"
+        };
+
+        await this.docClient.update(params).promise()
+    }
 }
 
 function createDynamoDBClient() {

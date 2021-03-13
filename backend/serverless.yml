@@ -57,7 +57,7 @@ functions:
           method: get
           path: todos
           cors: true
-          authorizer: RS256Auth
+          authorizer: Auth
 
   # TODO: Configure this function - DONE?
   CreateTodo:
@@ -72,7 +72,7 @@ functions:
           method: post
           path: todos
           cors: true
-          authorizer: RS256Auth
+          authorizer: Auth
           reqValidatorName: RequestBodyValidator
           documentation:
             summary: Create a new todo
@@ -101,15 +101,27 @@ functions:
           method: delete
           path: todos/{todoId}
           cors: true
-          authorizer: RS256Auth
+          authorizer: Auth
 
-  # TODO: Configure this function
+  # TODO: Configure this function - DONE?
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
     events:
       - http:
           method: post
           path: todos/{todoId}/attachment
+          cors: true
+          authorizer: Auth
 
 resources:
   Resources:
