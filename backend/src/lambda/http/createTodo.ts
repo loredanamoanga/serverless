@@ -9,6 +9,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const newTodo: CreateTodoRequest = JSON.parse(event.body)
 
     const authHeader = event.headers['Authorization']
+    // @ts-ignore
     const userId = getUserId(authHeader)
     const item = await new TodoAccess().createTodo(newTodo, userId)
     // TODO: Implement creating a new TODO item - DONE

@@ -4,22 +4,24 @@ import {TodoItem} from "../models/TodoItem";
 import {CreateTodoRequest} from "../requests/CreateTodoRequest";
 import {DocumentClient} from 'aws-sdk/clients/dynamodb'
 
+
+
 const XAWS = AWSXRay.captureAWS(AWS)
 const uuid = require('uuid/v4')
 
 
-export class GroupAccess {
+export class TodoAccess {
 
     constructor(
         private readonly docClient: DocumentClient = createDynamoDBClient(),
         private readonly todoListTable = process.env.TODO_TABLE,
-        private readonly userIdIndex = process.env.USER_ID_INDEX
     ) {
     }
 
     async createTodo(todoRequest: CreateTodoRequest, userId: string): Promise<TodoItem> {
         const generatedId = uuid()
-        const element = new TodoItem()
+        // @ts-ignore
+        const element = new TodoItem();
         element.userId = userId
         element.todoId = generatedId
         element.createdAt = new Date().toISOString()
@@ -32,6 +34,15 @@ export class GroupAccess {
         }).promise()
 
         return element
+    }
+    async getTodoById(id: string): Promise<AWS.DynamoDB.QueryOutput>{
+        return await this.docClient.query({
+            TableName: this.todoListTable,
+            KeyConditionExpression: 'todoId = :todoId',
+            ExpressionAttributeValues:{
+                ':todoId': id
+            }
+        }).promise()
     }
 }
 
