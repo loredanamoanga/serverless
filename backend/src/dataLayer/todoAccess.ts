@@ -45,6 +45,16 @@ export class TodoAccess {
             }
         }).promise()
     }
+    async deleteTodoById(todoId: string){
+        const param = {
+            TableName: this.todoListTable,
+            Key:{
+                "todoId":todoId
+            }
+        }
+
+        await this.docClient.delete(param).promise()
+    }
     async getUserTodos(userId: string): Promise<TodoItem[]>{
         const result = await this.docClient.query({
             TableName: this.todoListTable,

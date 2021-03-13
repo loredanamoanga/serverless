@@ -42,7 +42,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 
   try {
-    await todoAccess.deleteTodo(todoId);
+    await todoAccess.deleteTodoById(todoId);
     return {
       statusCode: 204,
       headers: {
