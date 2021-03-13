@@ -48,11 +48,16 @@ functions:
             - dynamodb:Query
             - dynamodb:Scan
           Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}/index/${self:provider.environment.USER_ID_INDEX}
+      - Effect: Allow
+          Action:
+            - s3:GetObject
+          Resource: arn:aws:s3:::${self:provider.environment.IMAGES_BUCKET}/*
     events:
       - http:
           method: get
           path: todos
           cors: true
+          authorizer: RS256Auth
 
   # TODO: Configure this function - DONE?
   CreateTodo:
