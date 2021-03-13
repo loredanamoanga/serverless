@@ -83,10 +83,23 @@ functions:
   # TODO: Configure this function
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
     events:
       - http:
           method: patch
           path: todos/{todoId}
+          cors: true
+            reqValidatorName: RequestBodyValidator
+            documentation:
+              summary: updates a todo element
+              description: updates a todo element
+              requestModels:
+                'application/json': UpdateTodo
 
   # TODO: Configure this function - DONE?
   DeleteTodo:
