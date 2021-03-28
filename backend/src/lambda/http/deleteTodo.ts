@@ -11,9 +11,7 @@ const todoAccess = new TodoAccess(docClient, todosTable)
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const todoId = event.pathParameters.todoId
-  const authHeader = event.headers['Authorization']
-  // @ts-ignore
-  const userId = getUserId(authHeader)
+  const userId = getUserId(event)
   // TODO: Remove a TODO item by id - DONE
   if (!todoId) {
     return {
@@ -46,7 +44,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     return {
       statusCode: 204,
       headers: {
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
       },
       body: ''
     }
@@ -55,7 +54,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     return {
       statusCode: 500,
       headers: {
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
       },
       body: JSON.stringify(e)
     }

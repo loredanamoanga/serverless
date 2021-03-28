@@ -5,16 +5,16 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import {getUserId} from "../utils";
 import {TodoAccess} from '../../dataLayer/todoAccess'
+import {createLogger} from "../../utils/logger";
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const todoId = event.pathParameters.todoId
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-
-  // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
+  const logger = createLogger('getTodos')
+  // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object - DONE
   const todoAccess = new TodoAccess()
-  const authHeader = event.headers['Authorization']
-  // @ts-ignore
-  const userId = getUserId(authHeader)
+  const userId = getUserId(event)
+  logger.info(`update for user ${userId}`)
 
   if (!todoId) {
     return {
@@ -47,17 +47,19 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       "statusCode": 204,
       "headers": {
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
       },
       "body": '',
     }
 
-  } catch (e) {
+  } catch (event) {
     return {
       "statusCode": 500,
       "headers": {
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
       },
-      "body": JSON.stringify({ e }),
+      "body": JSON.stringify({ event }),
     }
   }
 }

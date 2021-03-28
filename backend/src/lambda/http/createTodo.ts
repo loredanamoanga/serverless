@@ -4,24 +4,36 @@ import {APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult} fro
 import {getUserId} from "../utils";
 import {TodoAccess} from '../../dataLayer/todoAccess'
 import {CreateTodoRequest} from '../../requests/CreateTodoRequest'
+import {createLogger} from "../../utils/logger";
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const newTodo: CreateTodoRequest = JSON.parse(event.body)
+    const logger = createLogger('getTodos')
 
-    const authHeader = event.headers['Authorization']
-    // @ts-ignore
-    const userId = getUserId(authHeader)
-    const item = await new TodoAccess().createTodo(newTodo, userId)
     // TODO: Implement creating a new TODO item - DONE
+    const userId = getUserId(event)
 
-    return {
-        statusCode: 201,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': true
-        },
-        body: JSON.stringify({
-            "item": item
-        })
+    try {
+        const item = await new TodoAccess().createTodo(newTodo, userId)
+        return {
+            "statusCode": 201,
+            "headers": {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true
+            },
+            body: JSON.stringify({
+                "item": item
+            })
+        }
+    } catch (e) {
+        logger.info('Todo creation failed ', event)
+        return {
+            "statusCode": 500,
+            "headers": {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true
+            },
+            "body": JSON.stringify({ event }),
+        }
     }
 }

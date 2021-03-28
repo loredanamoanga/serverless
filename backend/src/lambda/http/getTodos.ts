@@ -2,14 +2,12 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import {getUserId} from "../utils";
+import {createLogger} from "../../utils/logger";
 import {TodoAccess} from '../../dataLayer/todoAccess'
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   // TODO: Get all TODO items for a current user - DONE
-
-    const authHeader = event.headers['Authorization']
-    // @ts-ignore
-    const userId = getUserId(authHeader)
-
+    const logger = createLogger('getTodos')
+    const userId = getUserId(event)
 
     try {
         const result = await new TodoAccess().getUserTodos(userId)
@@ -17,26 +15,32 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
             return {
                 statusCode: 200,
                 headers: {
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': true
                 },
-                body: JSON.stringify(result)
+                body: JSON.stringify({
+                    "items":result
+                })
             }
         } else {
+            logger.info('No todos for user ', userId)
             return {
                 statusCode: 200,
                 headers: {
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': true
                 },
-                body: JSON.stringify([])
+                body: null
             }
         }
-    } catch (e) {
+    } catch (event) {
         return {
             statusCode: 500,
             headers: {
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true
             },
-            body: JSON.stringify(e)
+            body: JSON.stringify(event)
         }
     }
 }

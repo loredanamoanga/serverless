@@ -18,23 +18,22 @@ export class TodoAccess {
         private readonly userId = process.env.USER_ID_INDEX
     ) {
     }
+    async createTodo(request: CreateTodoRequest,userId: string): Promise<TodoItem>{
+        const newId = uuid()
+        const item = <any>{}
+        item.userId= userId
+        item.todoId= newId
+        item.createdAt= new Date().toISOString()
+        item.name= request.name
+        item.dueDate= request.dueDate
+        item.done= false
 
-    async createTodo(todoRequest: CreateTodoRequest, userId: string): Promise<TodoItem> {
-        const generatedId = uuid()
-        // @ts-ignore
-        const element = new TodoItem();
-        element.userId = userId
-        element.todoId = generatedId
-        element.createdAt = new Date().toISOString()
-        element.name = todoRequest.name
-        element.dueDate = todoRequest.dueDate
-        element.done = false
         await this.docClient.put({
             TableName: this.todoListTable,
-            Item: element
+            Item: item
         }).promise()
 
-        return element
+        return item
     }
     async getTodoById(todoId: string): Promise<AWS.DynamoDB.QueryOutput>{
         return await this.docClient.query({
@@ -66,7 +65,7 @@ export class TodoAccess {
         }).promise()
         return result.Items as TodoItem[]
     }
-    async updateUploadedAttachment(bucketName: string, todoId: string): Promise<void> {
+    async updateAttachment(bucketName: string, todoId: string): Promise<void> {
         const params = {
             TableName: this.todoListTable,
             Key: {
@@ -78,7 +77,6 @@ export class TodoAccess {
             },
             ReturnValues: "UPDATED_NEW"
         };
-
         await this.docClient.update(params).promise()
     }
     async updateTodo(updatedTodo:UpdateTodoRequest,todoId:string){
