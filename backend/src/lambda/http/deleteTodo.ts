@@ -26,6 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     }
   }
   const element = await todoAccess.getTodoById(todoId)
+
   if (element.Items[0].userId !== userId) {
     return {
       statusCode: 400,
@@ -40,7 +41,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 
   try {
-    await todoAccess.deleteTodoById(todoId);
+    await todoAccess.deleteTodoById(todoId, userId);
     return {
       statusCode: 204,
       headers: {

@@ -44,11 +44,12 @@ export class TodoAccess {
             }
         }).promise()
     }
-    async deleteTodoById(todoId: string){
+    async deleteTodoById(todoId: string, userId: string){
         const param = {
             TableName: this.todoListTable,
             Key:{
-                "todoId":todoId
+                userId: userId,
+                todoId: todoId
             }
         }
 
@@ -65,11 +66,12 @@ export class TodoAccess {
         }).promise()
         return result.Items as TodoItem[]
     }
-    async updateAttachment(bucketName: string, todoId: string): Promise<void> {
+    async updateAttachment(bucketName: string, todoId: string, userId: string): Promise<void> {
         const params = {
             TableName: this.todoListTable,
             Key: {
-                todoId,
+                todoId: todoId,
+                userId: userId
             },
             UpdateExpression: "set attachmentUrl = :r",
             ExpressionAttributeValues: {
@@ -79,11 +81,12 @@ export class TodoAccess {
         };
         await this.docClient.update(params).promise()
     }
-    async updateTodo(updatedTodo:UpdateTodoRequest,todoId:string){
+    async updateTodo(updatedTodo:UpdateTodoRequest,todoId:string, userId: string){
         await this.docClient.update({
             TableName: this.todoListTable,
             Key:{
-                'todoId':todoId
+                userId: userId,
+                todoId: todoId
             },
             UpdateExpression: 'set #namefield = :n, dueDate = :d, done = :done',
             ExpressionAttributeValues: {

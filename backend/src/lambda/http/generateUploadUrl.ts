@@ -9,6 +9,7 @@ const todoAccess = new TodoAccess(docClient, todoItemTable)
 const bucketName = process.env.IMAGES_BUCKET
 const urlExpiration = parseInt(process.env.SIGNED_URL_EXPIRATION)
 import * as AWSXRay from 'aws-xray-sdk'
+import {getUserId} from "../utils";
 const XAWS = AWSXRay.captureAWS(AWS)
 
 const s3 = new XAWS.S3({
@@ -18,13 +19,11 @@ const s3 = new XAWS.S3({
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const todoId = event.pathParameters.todoId
   // TODO: Return a presigned URL to upload a file for a TODO item with the provided id - DONE
-  const updatedTodo = JSON.parse(event.body)
-  await todoAccess.updateTodo(updatedTodo, todoId)
-
+  const userId = getUserId(event)
 
   try {
     const url = await getUploadUrl(todoId);
-    await todoAccess.updateAttachment(bucketName, todoId);
+    await todoAccess.updateAttachment(bucketName, todoId, userId);
 
     return {
       statusCode: 201,

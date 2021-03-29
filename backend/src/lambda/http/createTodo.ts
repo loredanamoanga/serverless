@@ -25,8 +25,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
                 "item": item
             })
         }
-    } catch (e) {
-        logger.info('Todo creation failed ', event)
+    } catch (event) {
+        logger.info('Todo creation failed', event)
         return {
             "statusCode": 500,
             "headers": {
